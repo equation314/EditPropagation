@@ -37,7 +37,7 @@ void EditPropagation::m_init_feature_vectors()
     cv::Mat lab_img;
     cv::cvtColor(m_orig_img, lab_img, CV_BGR2Lab);
 
-    m_fvs.clear();
+    m_fv.clear();
     for (int i = 0; i < m_h; i++)
         for (int j = 0; j < m_w; j++)
         {
@@ -57,7 +57,7 @@ void EditPropagation::m_init_feature_vectors()
             }
 
             FeatureVec fv(color / s, pos);
-            m_fvs.push_back(fv);
+            m_fv.push_back(fv);
         }
 }
 
@@ -76,4 +76,13 @@ void EditPropagation::m_init_user_w_g()
             m_user_w.push_back(w);
             m_user_g.push_back(g);
         }
+}
+
+cv::Mat EditPropagation::array2image(const DoubleArray& array)
+{
+    cv::Mat img(m_h, m_w, CV_8UC1);
+    for (int i = 0, t = 0; i < m_h; i++)
+        for (int j = 0; j < m_w; j++)
+            img.at<uchar>(i, j) = array[t++] * 255;
+    return img;
 }
