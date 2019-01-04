@@ -1,6 +1,8 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include "AppProp.h"
+
 void usage(char* self)
 {
     printf("Usage %s <original_image> <user_input>\n", self);
@@ -17,8 +19,8 @@ int main(int argc, char* argv[])
     char* origin = argv[1];
     char* input = argv[2];
 
-    puts(origin);
-    puts(input);
+    EditPropagation* ep = new AppProp(origin, input);
+    ep->work();
 
     return 0;
 }
