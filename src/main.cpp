@@ -19,6 +19,7 @@ int main(int argc, char* argv[])
     char* origin = argv[1];
     char* input = argv[2];
 
+    srand(2333);
     EditPropagation* ep = new AppProp(origin, input);
     ep->work();
 

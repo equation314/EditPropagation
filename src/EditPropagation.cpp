@@ -51,7 +51,8 @@ void EditPropagation::m_init_feature_vectors()
                 if (0 <= x && x < m_w && 0 <= y && y < m_w)
                 {
                     cv::Vec3f lab = lab_img.at<cv::Vec3b>(x, y);
-                    color += lab / 255.0;
+                    lab /= 255;
+                    color += cv::Vec3f(log(lab[0] + 1e-4), log(lab[1] + 1e-4), log(lab[2] + 1e-4));
                     s++;
                 }
             }
@@ -71,18 +72,21 @@ void EditPropagation::m_init_user_w_g()
         {
             cv::Vec3b color = m_user_input.at<cv::Vec3b>(i, j);
             double w = color[0] == 128 ? 0 : 1;
-            double g = color[0] == 128 ? 0 : color[0] / 255.0;
+            double g = color[0] / 255.0;
 
             m_user_w.push_back(w);
             m_user_g.push_back(g);
         }
 }
 
-cv::Mat EditPropagation::array2image(const DoubleArray& array)
+cv::Mat EditPropagation::array2image(const DoubleArray& array, int height, int width)
 {
-    cv::Mat img(m_h, m_w, CV_8UC1);
-    for (int i = 0, t = 0; i < m_h; i++)
-        for (int j = 0; j < m_w; j++)
-            img.at<uchar>(i, j) = array[t++] * 255;
+    double min = *min_element(array.begin(), array.end());
+    double max = *max_element(array.begin(), array.end());
+    double scalar = max - min;
+    cv::Mat img(height, width, CV_8UC1);
+    for (int i = 0, t = 0; i < height; i++)
+        for (int j = 0; j < width; j++)
+            img.at<uchar>(i, j) = (array[t++] - min) / scalar * 255;
     return img;
 }

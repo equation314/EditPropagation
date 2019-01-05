@@ -14,7 +14,7 @@ void AppProp::work()
 {
     DoubleArray e = EditsSolver::solve(m_user_w, m_user_g, m_fv);
 
-    cv::Mat img = array2image(e);
+    cv::Mat img = array2image(e, m_h, m_w);
     cv::imshow("edits", img);
     cv::waitKey(0);
 }
