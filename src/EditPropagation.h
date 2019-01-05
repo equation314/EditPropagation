@@ -32,6 +32,8 @@ public:
 
     virtual void work() = 0;
 
+    cv::Mat apply_edits(const DoubleArray& e);
+
     static cv::Mat array2image(const DoubleArray& array, int height, int width);
 
 private:

@@ -21,6 +21,31 @@ EditPropagation::~EditPropagation()
 {
 }
 
+cv::Mat EditPropagation::apply_edits(const DoubleArray& e)
+{
+    cv::Mat lab_img, output_img;
+    cv::cvtColor(m_orig_img, lab_img, CV_BGR2Lab);
+
+    double ave = 0;
+    for (auto i : e)
+        ave += i;
+    ave /= e.size();
+
+    for (int i = 0; i < m_h; i++)
+        for (int j = 0; j < m_w; j++)
+        {
+            cv::Vec3b& lab = lab_img.at<cv::Vec3b>(i, j);
+
+            int delta = (e[i * m_w + j] - ave) * 500;
+            int new_light = lab[0] + delta;
+
+            lab[0] = min(max(new_light, 0), 255);
+        }
+
+    cv::cvtColor(lab_img, output_img, CV_Lab2BGR);
+    return output_img;
+}
+
 void EditPropagation::m_init_feature_vectors()
 {
     const int DIR[9][2] = {
