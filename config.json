@@ -1,0 +1,8 @@
+{
+  "column_samples": 100,
+  "omega_a": 0.2,
+  "omega_s": 10,
+  "none_user_input_gray": 128,
+  "use_log_lab_color": true,
+  "use_brute_force": false
+}

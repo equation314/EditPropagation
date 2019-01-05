@@ -5,20 +5,19 @@
 #include <vector>
 #include <opencv/cv.hpp>
 
+#include "Config.h"
+
 struct FeatureVec
 {
     cv::Vec3f f;
     cv::Vec2f x;
-
-    static constexpr double OMEGA_A = 0.2;
-    static constexpr double OMEGA_S = 10;
 
     FeatureVec(const cv::Vec3f& color, const cv::Vec2f& pos)
         : f(color), x(pos) {}
 
     double affinity_with(const FeatureVec& b) const
     {
-        return exp(-cv::norm(f - b.f, cv::NORM_L2SQR) / OMEGA_A) * exp(-cv::norm(x - b.x, cv::NORM_L2SQR) / OMEGA_S);
+        return exp(-cv::norm(f - b.f, cv::NORM_L2SQR) / Config::omega_a) * exp(-cv::norm(x - b.x, cv::NORM_L2SQR) / Config::omega_s);
     }
 };
 

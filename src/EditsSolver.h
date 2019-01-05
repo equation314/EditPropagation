@@ -10,8 +10,6 @@ private:
     ~EditsSolver();
 
 public:
-    static constexpr int COL_SAMPLES = 100;
-
     static DoubleArray solve(const DoubleArray& w, const DoubleArray& g, const FeatureVecArray& fv);
 };
 

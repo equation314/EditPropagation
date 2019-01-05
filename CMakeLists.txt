@@ -4,6 +4,10 @@ project(EditPropagation)
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
+option(JSONCPP_WITH_TESTS OFF)
+add_subdirectory(externals/jsoncpp)
+include_directories(externals/jsoncpp/include)
+
 add_subdirectory(externals/eigen)
 include_directories(externals/eigen)
 

@@ -3,6 +3,7 @@
 #include <Eigen/Core>
 #include <Eigen/Dense>
 
+#include "Config.h"
 #include "EditsSolver.h"
 
 using namespace std;
@@ -51,7 +52,7 @@ VectorXd brute_force(const MatrixXd& Z, const VectorXd& w, const VectorXd& g, do
 
 DoubleArray EditsSolver::solve(const DoubleArray& w, const DoubleArray& g, const FeatureVecArray& fv)
 {
-    int n = w.size(), m = COL_SAMPLES;
+    int n = w.size(), m = Config::column_samples;
     double lambda = 0;
     for (auto i : w)
         lambda += i;
@@ -75,7 +76,18 @@ DoubleArray EditsSolver::solve(const DoubleArray& w, const DoubleArray& g, const
         for (int j = 0; j < m; j++)
             U(i, j) = fv[index[i]].affinity_with(fv[index[j]]);
     }
-    VectorXd ve = lower_rank_approximation(U, vw, vg, lambda);
+
+    VectorXd ve;
+    if (Config::use_brute_force)
+    {
+        MatrixXd Z(n, n);
+        for (int i = 0, t = 0; i < n; i++)
+            for (int j = 0; j < n; j++, t++)
+                Z(xedni[i], xedni[j]) = fv[i].affinity_with(fv[j]);
+        ve = brute_force(Z, vw, vg, lambda);
+    }
+    else
+        ve = lower_rank_approximation(U, vw, vg, lambda);
 
     DoubleArray e(n);
     for (int i = 0; i < n; i++)

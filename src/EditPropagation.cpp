@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <iostream>
 
+#include "Config.h"
 #include "EditPropagation.h"
 
 using namespace std;
@@ -52,7 +53,10 @@ void EditPropagation::m_init_feature_vectors()
                 {
                     cv::Vec3f lab = lab_img.at<cv::Vec3b>(x, y);
                     lab /= 255;
-                    color += cv::Vec3f(log(lab[0] + 1e-4), log(lab[1] + 1e-4), log(lab[2] + 1e-4));
+                    if (Config::use_log_lab_color)
+                        color += cv::Vec3f(log(lab[0] + 1e-4), log(lab[1] + 1e-4), log(lab[2] + 1e-4));
+                    else
+                        color += lab;
                     s++;
                 }
             }
@@ -71,7 +75,7 @@ void EditPropagation::m_init_user_w_g()
         for (int j = 0; j < m_w; j++)
         {
             cv::Vec3b color = m_user_input.at<cv::Vec3b>(i, j);
-            double w = color[0] == 128 ? 0 : 1;
+            double w = color[0] == Config::none_user_input_gray ? 0 : 1;
             double g = color[0] / 255.0;
 
             m_user_w.push_back(w);

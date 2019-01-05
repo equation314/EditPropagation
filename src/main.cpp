@@ -1,7 +1,7 @@
-#include <cstdio>
 #include <cstdlib>
 
 #include "AppProp.h"
+#include "Config.h"
 
 void usage(char* self)
 {
@@ -18,6 +18,8 @@ int main(int argc, char* argv[])
 
     char* origin = argv[1];
     char* input = argv[2];
+
+    Config::loadFrom("../config.json");
 
     srand(2333);
     EditPropagation* ep = new AppProp(origin, input);
