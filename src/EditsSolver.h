@@ -7,7 +7,7 @@ class EditsSolver
 {
 private:
     EditsSolver();
-    ~EditsSolver();
+    virtual ~EditsSolver();
 
 public:
     static DoubleArray solve(const DoubleArray& w, const DoubleArray& g, const FeatureVecArray& fv);

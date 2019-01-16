@@ -3,6 +3,7 @@
   "omega_a": 0.2,
   "omega_s": 10,
   "none_user_input_gray": 128,
-  "use_log_lab_color": true,
-  "use_brute_force": false
+  "use_log_lab_color": false,
+  "use_brute_force": false,
+  "kd_tree_eta": 0.02
 }

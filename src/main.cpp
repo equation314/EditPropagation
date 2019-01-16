@@ -1,6 +1,7 @@
 #include <cstdlib>
 
 #include "AppProp.h"
+#include "AppPropKDTree.h"
 #include "Config.h"
 
 void usage(char* self)
@@ -22,7 +23,8 @@ int main(int argc, char* argv[])
     Config::loadFrom("../config.json");
 
     srand(2333);
-    EditPropagation* ep = new AppProp(origin, input);
+    // EditPropagation* ep = new AppProp(origin, input);
+    EditPropagation* ep = new AppPropKDTree(origin, input);
     ep->work();
 
     return 0;

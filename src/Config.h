@@ -16,6 +16,8 @@ struct Config
     static bool use_log_lab_color;
     static bool use_brute_force;
 
+    static double kd_tree_eta;
+
     static Json::Value toJson();
     static void load(const Json::Value& config);
     static void save(const std::string& file);
