@@ -5,24 +5,8 @@
 #include <vector>
 #include <opencv/cv.hpp>
 
+#include "Common.h"
 #include "Config.h"
-
-struct FeatureVec
-{
-    cv::Vec3f f;
-    cv::Vec2f x;
-
-    FeatureVec(const cv::Vec3f& color, const cv::Vec2f& pos)
-        : f(color), x(pos) {}
-
-    double affinity_with(const FeatureVec& b) const
-    {
-        return exp(-cv::norm(f - b.f, cv::NORM_L2SQR) / Config::omega_a) * exp(-cv::norm(x - b.x, cv::NORM_L2SQR) / Config::omega_s);
-    }
-};
-
-typedef std::vector<double> DoubleArray;
-typedef std::vector<FeatureVec> FeatureVecArray;
 
 class EditPropagation
 {

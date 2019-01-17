@@ -1,7 +1,7 @@
 #ifndef EDITS_SOLVER_H
 #define EDITS_SOLVER_H
 
-#include "EditPropagation.h"
+#include "Common.h"
 
 class EditsSolver
 {

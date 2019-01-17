@@ -4,26 +4,9 @@
 #include <cmath>
 #include <vector>
 
-#include "Config.h"
+#include "Common.h"
 
-const int KD = 5;
-
-typedef double VectorK[KD];
-
-struct Point
-{
-    Point(bool is_user_edits = false)
-        : is_user_edits(is_user_edits) {}
-    Point(const double* _x, bool is_user_edits = false)
-        : is_user_edits(is_user_edits)
-    {
-        for (int i = 0; i < KD; i++)
-            x[i] = _x[i];
-    }
-
-    VectorK x;
-    bool is_user_edits;
-};
+class NearestNeighbor;
 
 struct Node
 {
@@ -35,7 +18,7 @@ struct Node
     Point center() const
     {
         Point c;
-        for (int i = 0; i < KD; i++)
+        for (int i = 0; i < DIM; i++)
             c.x[i] = (lower[i] + upper[i]) / 2;
         return c;
     }
@@ -43,14 +26,9 @@ struct Node
     double size2() const
     {
         double s = 0;
-        for (int i = 0; i < KD; i++)
+        for (int i = 0; i < DIM; i++)
             s += (upper[i] - lower[i]) * (upper[i] - lower[i]);
         return s;
-    }
-
-    bool is_leaf() const
-    {
-        return l >= r || sqrt(size2()) < Config::kd_tree_eta;
     }
 
     int l, r, k;
@@ -71,7 +49,9 @@ public:
 private:
     int m_n, m_c;
     Node* m_root;
+    NearestNeighbor* m_nn_tree;
     std::vector<Point> m_points;
+    std::vector<Node*> m_cells;
 
     void m_build(Node* p, int k);
     void m_destory(Node* p);

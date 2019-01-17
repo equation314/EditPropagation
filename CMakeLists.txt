@@ -11,6 +11,8 @@ include_directories(externals/jsoncpp/include)
 add_subdirectory(externals/eigen)
 include_directories(externals/eigen)
 
+include_directories(externals/nanoflann/include)
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g")
 set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O2 -O3 -Wall")

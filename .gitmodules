@@ -4,3 +4,6 @@
 [submodule "externals/jsoncpp"]
 	path = externals/jsoncpp
 	url = https://github.com/open-source-parsers/jsoncpp.git
+[submodule "externals/nanoflann"]
+	path = externals/nanoflann
+	url = https://github.com/jlblancoc/nanoflann.git

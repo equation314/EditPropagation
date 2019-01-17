@@ -1,21 +1,23 @@
 #include <iostream>
 
+#include "Config.h"
 #include "KDTree.h"
+#include "NearestNeighbor.h"
 
 using namespace std;
 
 inline std::ostream& operator<<(std::ostream& out, const Point& p)
 {
     out << '(';
-    for (int i = 0; i < KD - 1; i++)
+    for (int i = 0; i < DIM - 1; i++)
         out << p.x[i] << ", ";
-    return out << p.x[KD - 1] << ')';
+    return out << p.x[DIM - 1] << ')';
 }
 
 inline std::ostream& operator<<(std::ostream& out, const Node& node)
 {
     out << node.l << ' ' << node.r << ' ' << node.k << ' ';
-    for (int i = 0; i < KD; i++)
+    for (int i = 0; i < DIM; i++)
         out << '[' << node.lower[i] << ", " << node.upper[i] << "] ";
     return out << node.center() << ' ' << node.size2();
 }
@@ -30,14 +32,12 @@ KDTree::~KDTree()
     m_destory(m_root);
 }
 
-void KDTree::m_build(Node* p, int kk)
+void KDTree::m_build(Node* p, int k)
 {
-    int k = kk % KD;
     p->k = k;
-
-    if (p->is_leaf())
+    if (p->l >= p->r || sqrt(p->size2()) - sqrt(m_nn_tree->nearestDist2(p->center().x)) < Config::kd_tree_eta)
     {
-        m_c++;
+        m_cells.push_back(p);
         return;
     }
 
@@ -59,7 +59,7 @@ void KDTree::m_build(Node* p, int kk)
     }
 
     Node *lc = new Node(l, i), *rc = new Node(i, r);
-    for (int i = 0; i < KD; i++)
+    for (int i = 0; i < DIM; i++)
         if (i != k)
         {
             lc->lower[i] = rc->lower[i] = p->lower[i];
@@ -72,8 +72,8 @@ void KDTree::m_build(Node* p, int kk)
         }
 
     p->lc = lc, p->rc = rc;
-    m_build(lc, (kk + 1));
-    m_build(rc, (kk + 1));
+    m_build(lc, (k + 1) % DIM);
+    m_build(rc, (k + 1) % DIM);
 }
 
 void KDTree::m_destory(Node* p)
@@ -88,12 +88,20 @@ void KDTree::m_destory(Node* p)
 void KDTree::build()
 {
     m_n = m_points.size();
-    m_c = 0;
     m_root = new Node(0, m_n);
-    for (int i = 0; i < KD; i++)
+    m_cells.clear();
+    for (int i = 0; i < DIM; i++)
         m_root->lower[i] = 0, m_root->upper[i] = 1;
     cout << m_n << endl;
 
+    m_nn_tree = new NearestNeighbor();
+    for (auto p : m_points)
+        if (p.is_user_edits) m_nn_tree->insert(p);
+    m_nn_tree->build();
+
     m_build(m_root, 0);
+    m_c = m_cells.size();
     cout << m_c << endl;
+
+    delete m_nn_tree;
 }
