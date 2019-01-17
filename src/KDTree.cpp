@@ -215,10 +215,13 @@ void KDTree::solveCornerEdits(const DoubleArray& userW, const DoubleArray& userG
             {
                 double s = 1;
                 for (int k = 0; k < DIM; k++)
+                {
+                    double len = cell->upper[k] - cell->lower[k];
                     if ((corner_index >> k) & 1)
-                        s *= m_points[j]->x[k] - cell->lower[k];
+                        s *= (m_points[j]->x[k] - cell->lower[k]) / len;
                     else
-                        s *= cell->upper[k] - m_points[j]->x[k];
+                        s *= (cell->upper[k] - m_points[j]->x[k]) / len;
+                }
 
                 int index = m_points[j]->index();
                 w_up += s * userW[index];
@@ -233,4 +236,48 @@ void KDTree::solveCornerEdits(const DoubleArray& userW, const DoubleArray& userG
     }
 
     m_corner_edits = EditsSolver::solve(w, g, mu, fvs);
+}
+
+void KDTree::m_adjustTJunctions(Node* p)
+{
+}
+
+int KDTree::m_corner_index(const Point& p)
+{
+    CornerPoint corner(p);
+    auto iter = lower_bound(m_corners.begin(), m_corners.end(), &corner, [](const CornerPoint* a, const CornerPoint* b) {
+        return *a < *b;
+    });
+    assert(iter != m_corners.end());
+    return iter - m_corners.begin();
+}
+
+void KDTree::interpolation()
+{
+    m_adjustTJunctions(m_root);
+
+    m_final_edits = DoubleArray(m_n);
+    for (int t = 0; t < m_corners.size(); t++)
+    {
+        auto corner = m_corners[t];
+        double e = m_corner_edits[t];
+        for (auto i = corner->neighborCellBegin(); i != corner->neighborCellEnd(); i++)
+        {
+            auto cell = i->cell;
+            int corner_index = i->corner_index;
+            for (int j = cell->l; j < cell->r; j++)
+            {
+                double s = 1;
+                for (int k = 0; k < DIM; k++)
+                {
+                    double len = cell->upper[k] - cell->lower[k];
+                    if ((corner_index >> k) & 1)
+                        s *= (m_points[j]->x[k] - cell->lower[k]) / len;
+                    else
+                        s *= (cell->upper[k] - m_points[j]->x[k]) / len;
+                }
+                m_final_edits[m_points[j]->index()] += s * e;
+            }
+        }
+    }
 }

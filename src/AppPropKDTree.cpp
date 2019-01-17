@@ -21,12 +21,18 @@ void AppPropKDTree::work()
 
     tree->build();
     tree->solveCornerEdits(m_user_w, m_user_g);
+    tree->interpolation();
 
     DoubleArray arr = tree->getClustersEditsImage(tree->cornerEdits());
-    // DoubleArray arr = tree->getClustersImage();
     cv::Mat img = array2image(arr, m_h, m_w);
     cv::imwrite("clusters.png", img);
     cv::imshow("clusters", img);
+
+    arr = tree->getFinalEdits();
+    img = array2image(arr, m_h, m_w);
+    cv::imwrite("output.png", img);
+    cv::imshow("edits", img);
+
     cv::waitKey(0);
 
     delete tree;

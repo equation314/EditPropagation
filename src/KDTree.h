@@ -65,6 +65,9 @@ public:
 
     void solveCornerEdits(const DoubleArray& userW, const DoubleArray& userG);
 
+    void interpolation();
+
+    DoubleArray getFinalEdits() const { return m_final_edits; }
     DoubleArray getClustersImage() const;
     DoubleArray getClustersEditsImage(const DoubleArray& e) const;
 
@@ -79,9 +82,12 @@ private:
     std::vector<const CornerPoint*> m_corners;
 
     DoubleArray m_corner_edits;
+    DoubleArray m_final_edits;
 
     void m_build(Node* p, int k);
     void m_destory(Node* p);
+    void m_adjustTJunctions(Node* p);
+    int m_corner_index(const Point& p);
 };
 
 #endif // KD_TREE_H
