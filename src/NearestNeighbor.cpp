@@ -19,12 +19,12 @@ void NearestNeighbor::build()
     m_index->buildIndex();
 }
 
-double NearestNeighbor::nearestDist2(const Point& query)
+double NearestNeighbor::nearestDist2(const Point* query)
 {
     size_t ret_index;
     double out_dist_sqr;
     KNNResultSet<double> resultSet(1);
     resultSet.init(&ret_index, &out_dist_sqr);
-    m_index->findNeighbors(resultSet, query.x, nanoflann::SearchParams(10));
+    m_index->findNeighbors(resultSet, query->x, nanoflann::SearchParams(10));
     return out_dist_sqr;
 }

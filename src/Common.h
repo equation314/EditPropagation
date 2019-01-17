@@ -5,6 +5,7 @@
 
 #include "Config.h"
 
+const double EPS = 1e-9;
 const int DIM = 5;
 
 struct FeatureVec
@@ -13,11 +14,12 @@ struct FeatureVec
     cv::Vec2f x;
 
     FeatureVec(const cv::Vec3f& color, const cv::Vec2f& pos)
-        : f(color), x(pos) {}
+        : f(color / Config::omega_c), x(pos / Config::omega_p) {}
 
     double affinity_with(const FeatureVec& b) const
     {
-        return exp(-cv::norm(f - b.f, cv::NORM_L2SQR) / Config::omega_a) * exp(-cv::norm(x - b.x, cv::NORM_L2SQR) / Config::omega_s);
+        return exp(-cv::norm(f - b.f, cv::NORM_L2SQR)) * exp(-cv::norm(x - b.x, cv::NORM_L2SQR));
+        // return exp(-cv::norm(f - b.f, cv::NORM_L2SQR) / Config::omega_a) * exp(-cv::norm(x - b.x, cv::NORM_L2SQR) / Config::omega_s);
     }
 };
 
@@ -25,17 +27,50 @@ typedef double VectorK[DIM];
 
 struct Point
 {
-    Point(bool is_user_edits = false)
-        : is_user_edits(is_user_edits) {}
-    Point(const double* _x, bool is_user_edits = false)
-        : is_user_edits(is_user_edits)
+    Point() {}
+    Point(const double* _x)
     {
         for (int i = 0; i < DIM; i++)
             x[i] = _x[i];
     }
 
     VectorK x;
-    bool is_user_edits;
+
+    bool operator<(const Point& p) const
+    {
+        for (int i = 0; i < DIM; i++)
+        {
+            if ((x[i] - p.x[i]) < -EPS)
+                return true;
+            if ((x[i] - p.x[i]) > EPS)
+                return false;
+        }
+        return false;
+    }
+
+    bool operator==(const Point& p) const
+    {
+        for (int i = 0; i < DIM; i++)
+        {
+            if (abs(x[i] - p.x[i]) > EPS)
+                return false;
+        }
+        return true;
+    }
+};
+
+class PixelPoint : public Point
+{
+public:
+    PixelPoint(const double* _x, int index, bool is_user_edits)
+        : Point(_x), m_index(index), m_is_user_edits(is_user_edits) {}
+
+    int index() const { return m_index; }
+    bool isUserEdits() const { return m_is_user_edits; }
+
+private:
+    int m_index;
+    bool m_is_user_edits;
 };
 
 typedef std::vector<double> DoubleArray;

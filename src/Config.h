@@ -8,8 +8,15 @@ struct Config
 {
     static int column_samples;
 
+    // for AppProp
     static double omega_a;
     static double omega_s;
+
+    // for AppPropKDTree
+    // omega_a = omega_c^2
+    // omega_p = omega_s^2
+    static double omega_c;
+    static double omega_p;
 
     static int none_user_input_gray;
 

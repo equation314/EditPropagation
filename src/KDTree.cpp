@@ -22,20 +22,51 @@ inline std::ostream& operator<<(std::ostream& out, const Node& node)
     return out << node.center() << ' ' << node.size2();
 }
 
+Point Node::center() const
+{
+    Point c;
+    for (int i = 0; i < DIM; i++)
+        c.x[i] = (lower[i] + upper[i]) / 2;
+    return c;
+}
+
+double Node::size2() const
+{
+    double s = 0;
+    for (int i = 0; i < DIM; i++)
+        s += (upper[i] - lower[i]) * (upper[i] - lower[i]);
+    return s;
+}
+
+Point Node::cornerPoint(int index) const
+{
+    Point c;
+    for (int i = 0; i < DIM; i++)
+        c.x[i] = ((index >> i) & 1) ? upper[i] : lower[i];
+    return c;
+}
+
 KDTree::KDTree()
-    : m_root(nullptr)
+    : m_root(nullptr), m_nn_tree(nullptr)
 {
 }
 
 KDTree::~KDTree()
 {
     m_destory(m_root);
+    if (m_nn_tree)
+        delete m_nn_tree;
+    for (auto p : m_points)
+        delete p;
+    for (auto c : m_corners)
+        delete c;
 }
 
 void KDTree::m_build(Node* p, int k)
 {
     p->k = k;
-    if (p->l >= p->r || sqrt(p->size2()) - sqrt(m_nn_tree->nearestDist2(p->center().x)) < Config::kd_tree_eta)
+    Point center = p->center();
+    if (p->l >= p->r || sqrt(p->size2()) - sqrt(m_nn_tree->nearestDist2(&center)) < Config::kd_tree_eta)
     {
         m_cells.push_back(p);
         return;
@@ -47,9 +78,9 @@ void KDTree::m_build(Node* p, int k)
 
     for (; i <= j;)
     {
-        while (i <= j && m_points[i].x[k] < mid)
+        while (i <= j && m_points[i]->x[k] < mid)
             i++;
-        while (i <= j && m_points[j].x[k] > mid)
+        while (i <= j && m_points[j]->x[k] > mid)
             j--;
         if (i <= j)
         {
@@ -90,18 +121,55 @@ void KDTree::build()
     m_n = m_points.size();
     m_root = new Node(0, m_n);
     m_cells.clear();
+
     for (int i = 0; i < DIM; i++)
-        m_root->lower[i] = 0, m_root->upper[i] = 1;
+    {
+        double mi = 1e9, ma = -1e9;
+        for (auto p : m_points)
+            mi = min(mi, p->x[i]), ma = max(ma, p->x[i]);
+        m_root->lower[i] = mi, m_root->upper[i] = ma;
+    }
     cout << m_n << endl;
+    cout << *m_root << endl;
 
     m_nn_tree = new NearestNeighbor();
     for (auto p : m_points)
-        if (p.is_user_edits) m_nn_tree->insert(p);
+        if (p->isUserEdits()) m_nn_tree->insert(p);
     m_nn_tree->build();
 
     m_build(m_root, 0);
     m_c = m_cells.size();
     cout << m_c << endl;
 
-    delete m_nn_tree;
+    vector<pair<Point, const Node*>> all_corners;
+    for (auto cell : m_cells)
+    {
+        for (int i = 0; i < 1 << DIM; i++)
+            all_corners.push_back(make_pair(cell->cornerPoint(i), cell));
+    }
+    sort(all_corners.begin(), all_corners.end());
+
+    for (int i = 0, j, n = all_corners.size(); i < n; i = j)
+    {
+        CornerPoint* corner = new CornerPoint(all_corners[i].first);
+        for (j = i; j < n && all_corners[j].first == all_corners[i].first; j++)
+            corner->addNeighborCell(all_corners[j].second);
+
+        m_corners.push_back(corner);
+    }
+    cout << all_corners.size() << endl;
+    cout << m_corners.size() << endl;
+}
+
+DoubleArray KDTree::getClustersImage() const
+{
+    DoubleArray img(m_n);
+    for (auto cell : m_cells)
+    {
+        Point center = cell->center();
+        for (int i = cell->l; i < cell->r; i++)
+            img[m_points[i]->index()] = -sqrt(m_nn_tree->nearestDist2(&center));
+    }
+
+    return img;
 }

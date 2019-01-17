@@ -15,25 +15,28 @@ struct Node
     {
     }
 
-    Point center() const
-    {
-        Point c;
-        for (int i = 0; i < DIM; i++)
-            c.x[i] = (lower[i] + upper[i]) / 2;
-        return c;
-    }
+    Point center() const;
 
-    double size2() const
-    {
-        double s = 0;
-        for (int i = 0; i < DIM; i++)
-            s += (upper[i] - lower[i]) * (upper[i] - lower[i]);
-        return s;
-    }
+    double size2() const;
+
+    Point cornerPoint(int index) const;
 
     int l, r, k;
     Node *lc, *rc;
     VectorK lower, upper;
+};
+
+class CornerPoint : public Point
+{
+public:
+    CornerPoint(const Point& p)
+        : Point(p) {}
+
+    int neighborCellsCount() const { return m_neighbor_cells.size(); }
+    void addNeighborCell(const Node* cell) { m_neighbor_cells.push_back(cell); }
+
+private:
+    std::vector<const Node*> m_neighbor_cells;
 };
 
 class KDTree
@@ -44,14 +47,17 @@ public:
 
     void build();
 
-    void insert(const Point& p) { m_points.push_back(p); }
+    void insert(const PixelPoint* p) { m_points.push_back(p); }
+
+    DoubleArray getClustersImage() const;
 
 private:
     int m_n, m_c;
     Node* m_root;
     NearestNeighbor* m_nn_tree;
-    std::vector<Point> m_points;
-    std::vector<Node*> m_cells;
+    std::vector<const PixelPoint*> m_points;
+    std::vector<const Node*> m_cells;
+    std::vector<const CornerPoint*> m_corners;
 
     void m_build(Node* p, int k);
     void m_destory(Node* p);

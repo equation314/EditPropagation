@@ -12,19 +12,25 @@ double Config::omega_a = 0.2;
 
 double Config::omega_s = 10;
 
+double Config::omega_c = 0.2;
+
+double Config::omega_p = 0.2;
+
 int Config::none_user_input_gray = 128;
 
 bool Config::use_log_lab_color = true;
 
 bool Config::use_brute_force = false;
 
-double Config::kd_tree_eta = 0.02;
+double Config::kd_tree_eta = 0.5;
 
 void Config::load(const Json::Value& config)
 {
     column_samples = config["column_samples"].asInt();
     omega_a = config["omega_a"].asDouble();
     omega_s = config["omega_s"].asDouble();
+    omega_c = config["omega_c"].asDouble();
+    omega_p = config["omega_p"].asDouble();
     none_user_input_gray = config["none_user_input_gray"].asInt();
     use_log_lab_color = config["use_log_lab_color"].asBool();
     use_brute_force = config["use_brute_force"].asBool();
@@ -37,6 +43,8 @@ Json::Value Config::toJson()
     config["column_samples"] = column_samples;
     config["omega_a"] = omega_a;
     config["omega_s"] = omega_s;
+    config["omega_c"] = omega_c;
+    config["omega_p"] = omega_p;
     config["use_log_lab_color"] = use_log_lab_color;
     config["use_brute_force"] = use_brute_force;
     config["kd_tree_eta"] = kd_tree_eta;

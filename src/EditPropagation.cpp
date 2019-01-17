@@ -49,11 +49,11 @@ cv::Mat EditPropagation::apply_edits(const DoubleArray& e)
 void EditPropagation::m_init_feature_vectors()
 {
     const int DIR[9][2] = {
+        {0, 0},
         {-1, -1},
         {-1, 0},
         {-1, 1},
         {0, -1},
-        {0, 0},
         {0, 1},
         {1, -1},
         {1, 0},

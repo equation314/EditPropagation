@@ -11,11 +11,11 @@ public:
     NearestNeighbor();
     virtual ~NearestNeighbor();
 
-    void insert(const Point& p) { m_pts.push_back(p); }
+    void insert(const Point* p) { m_pts.push_back(p); }
 
     void build();
 
-    double nearestDist2(const Point& query);
+    double nearestDist2(const Point* query);
 
     // Must return the number of data points
     inline size_t kdtree_get_point_count() const { return m_pts.size(); }
@@ -25,7 +25,7 @@ public:
     //  "if/else's" are actually solved at compile time.
     inline double kdtree_get_pt(const size_t idx, const size_t dim) const
     {
-        return m_pts[idx].x[dim];
+        return m_pts[idx]->x[dim];
     }
 
     // Optional bounding-box computation: return false to default to a standard bbox computation loop.
@@ -45,7 +45,7 @@ private:
         my_kd_tree_t;
 
     my_kd_tree_t* m_index;
-    std::vector<Point> m_pts;
+    std::vector<const Point*> m_pts;
 };
 
 #endif // NEAREST_NEIGHBOR_H
