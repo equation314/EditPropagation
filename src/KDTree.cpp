@@ -159,7 +159,7 @@ void KDTree::build()
             corner->addNeighborCell(neighbor_cell);
         }
 
-        if (s)
+        if (true)
             m_corners.push_back(corner);
         else
             delete corner;
@@ -215,13 +215,10 @@ void KDTree::solveCornerEdits(const DoubleArray& userW, const DoubleArray& userG
             {
                 double s = 1;
                 for (int k = 0; k < DIM; k++)
-                {
-                    double len = cell->upper[k] - cell->lower[k];
                     if ((corner_index >> k) & 1)
-                        s *= (m_points[j]->x[k] - cell->lower[k]) / len;
+                        s *= (m_points[j]->x[k] - cell->lower[k]) / cell->len(k);
                     else
-                        s *= (cell->upper[k] - m_points[j]->x[k]) / len;
-                }
+                        s *= (cell->upper[k] - m_points[j]->x[k]) / cell->len(k);
 
                 int index = m_points[j]->index();
                 w_up += s * userW[index];
@@ -238,18 +235,48 @@ void KDTree::solveCornerEdits(const DoubleArray& userW, const DoubleArray& userG
     m_corner_edits = EditsSolver::solve(w, g, mu, fvs);
 }
 
-void KDTree::m_adjustTJunctions(Node* p)
-{
-}
-
 int KDTree::m_corner_index(const Point& p)
 {
     CornerPoint corner(p);
     auto iter = lower_bound(m_corners.begin(), m_corners.end(), &corner, [](const CornerPoint* a, const CornerPoint* b) {
         return *a < *b;
     });
-    assert(iter != m_corners.end());
-    return iter - m_corners.begin();
+    if (iter == m_corners.end() || !(p == **iter))
+        return -1;
+    else
+        return iter - m_corners.begin();
+}
+
+void KDTree::m_adjustTJunctions(Node* p)
+{
+    if (p->lc == nullptr || p->rc == nullptr)
+        return;
+
+    int k = p->k;
+    for (int i = 0; i < 1 << DIM; i++)
+        if (((i >> k) & 1) == 0)
+        {
+            int ia, ib, ic;
+            Point pa = p->cornerPoint(i);
+            Point pb = p->cornerPoint(i | (1 << k));
+            Point pc = pa;
+            pc.x[k] = (p->lower[k] + p->upper[k]) / 2;
+            if ((ic = m_corner_index(pc)) > -1)
+            {
+                ia = m_corner_index(pa);
+                ib = m_corner_index(pb);
+                assert(ia != -1 && ib != -1);
+
+                int dim = DIM;
+                for (int t = 0; t < DIM; t++)
+                    if (pc.x[t] == m_root->lower[t] || pc.x[t] == m_root->upper[t])
+                        dim--;
+                if (m_corners[ic]->neighborCellsCount() < (1 << dim))
+                    m_corner_edits[ic] = (m_corner_edits[ia] + m_corner_edits[ib]) / 2;
+            }
+        }
+    m_adjustTJunctions(p->lc);
+    m_adjustTJunctions(p->rc);
 }
 
 void KDTree::interpolation()
@@ -269,13 +296,10 @@ void KDTree::interpolation()
             {
                 double s = 1;
                 for (int k = 0; k < DIM; k++)
-                {
-                    double len = cell->upper[k] - cell->lower[k];
                     if ((corner_index >> k) & 1)
-                        s *= (m_points[j]->x[k] - cell->lower[k]) / len;
+                        s *= (m_points[j]->x[k] - cell->lower[k]) / cell->len(k);
                     else
-                        s *= (cell->upper[k] - m_points[j]->x[k]) / len;
-                }
+                        s *= (cell->upper[k] - m_points[j]->x[k]) / cell->len(k);
                 m_final_edits[m_points[j]->index()] += s * e;
             }
         }

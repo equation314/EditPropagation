@@ -36,7 +36,7 @@ cv::Mat EditPropagation::apply_edits(const DoubleArray& e)
         {
             cv::Vec3b& lab = lab_img.at<cv::Vec3b>(i, j);
 
-            int delta = (e[i * m_w + j] - ave) * 500;
+            int delta = (e[i * m_w + j] - ave) * Config::apply_edits_coefficient;
             int new_light = lab[0] + delta;
 
             lab[0] = min(max(new_light, 0), 255);
@@ -113,6 +113,7 @@ cv::Mat EditPropagation::array2image(const DoubleArray& array, int height, int w
     double min = *min_element(array.begin(), array.end());
     double max = *max_element(array.begin(), array.end());
     double scalar = max - min;
+    cout << min << ' ' << max << endl;
     cv::Mat img(height, width, CV_8UC1);
     for (int i = 0, t = 0; i < height; i++)
         for (int j = 0; j < width; j++)

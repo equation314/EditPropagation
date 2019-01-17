@@ -17,6 +17,8 @@ struct Node
 
     Point center() const;
 
+    double len(int k) const { return upper[k] - lower[k]; }
+
     double size2() const;
 
     Point cornerPoint(int index) const;

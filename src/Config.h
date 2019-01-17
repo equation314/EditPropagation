@@ -18,6 +18,8 @@ struct Config
     static double omega_c;
     static double omega_p;
 
+    static double apply_edits_coefficient;
+
     static int none_user_input_gray;
 
     static bool use_log_lab_color;
