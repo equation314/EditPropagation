@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Config.h"
+#include "EditsSolver.h"
 #include "KDTree.h"
 #include "NearestNeighbor.h"
 
@@ -138,24 +139,30 @@ void KDTree::build()
     m_nn_tree->build();
 
     m_build(m_root, 0);
-    m_c = m_cells.size();
-    cout << m_c << endl;
 
-    vector<pair<Point, const Node*>> all_corners;
+    vector<pair<Point, NeighborCell>> all_corners;
     for (auto cell : m_cells)
     {
         for (int i = 0; i < 1 << DIM; i++)
-            all_corners.push_back(make_pair(cell->cornerPoint(i), cell));
+            all_corners.push_back(make_pair(cell->cornerPoint(i), NeighborCell(cell, i)));
     }
     sort(all_corners.begin(), all_corners.end());
 
     for (int i = 0, j, n = all_corners.size(); i < n; i = j)
     {
+        int s = 0;
         CornerPoint* corner = new CornerPoint(all_corners[i].first);
         for (j = i; j < n && all_corners[j].first == all_corners[i].first; j++)
-            corner->addNeighborCell(all_corners[j].second);
+        {
+            auto neighbor_cell = all_corners[j].second;
+            s += neighbor_cell.cell->r - neighbor_cell.cell->l;
+            corner->addNeighborCell(neighbor_cell);
+        }
 
-        m_corners.push_back(corner);
+        if (s)
+            m_corners.push_back(corner);
+        else
+            delete corner;
     }
     cout << all_corners.size() << endl;
     cout << m_corners.size() << endl;
@@ -170,6 +177,60 @@ DoubleArray KDTree::getClustersImage() const
         for (int i = cell->l; i < cell->r; i++)
             img[m_points[i]->index()] = -sqrt(m_nn_tree->nearestDist2(&center));
     }
-
     return img;
+}
+
+DoubleArray KDTree::getClustersEditsImage(const DoubleArray& e) const
+{
+    assert(m_corners.size() == e.size());
+
+    DoubleArray img(m_n, 0);
+    for (int i = 0; i < m_corners.size(); i++)
+    {
+        auto corner = m_corners[i];
+        for (auto j = corner->neighborCellBegin(); j != corner->neighborCellEnd(); j++)
+        {
+            auto cell = j->cell;
+            for (int k = cell->l; k < cell->r; k++)
+                img[m_points[k]->index()] += e[i];
+        }
+    }
+    return img;
+}
+
+void KDTree::solveCornerEdits(const DoubleArray& userW, const DoubleArray& userG)
+{
+    DoubleArray w, g, mu;
+    FeatureVecArray fvs;
+    for (auto corner : m_corners)
+    {
+        double w_up = 0;
+        double w_down = 0;
+        double g_up = 0;
+        for (auto i = corner->neighborCellBegin(); i != corner->neighborCellEnd(); i++)
+        {
+            auto cell = i->cell;
+            int corner_index = i->corner_index;
+            for (int j = cell->l; j < cell->r; j++)
+            {
+                double s = 1;
+                for (int k = 0; k < DIM; k++)
+                    if ((corner_index >> k) & 1)
+                        s *= m_points[j]->x[k] - cell->lower[k];
+                    else
+                        s *= cell->upper[k] - m_points[j]->x[k];
+
+                int index = m_points[j]->index();
+                w_up += s * userW[index];
+                w_down += s;
+                g_up += s * userG[index] * userW[index];
+            }
+        }
+        w.push_back(w_down == 0 ? 0 : w_up / w_down);
+        g.push_back(w_up == 0 ? 0 : g_up / w_up);
+        mu.push_back(w_down == 0 ? 1e-18 : w_down);
+        fvs.push_back(FeatureVec(corner->x));
+    }
+
+    m_corner_edits = EditsSolver::solve(w, g, mu, fvs);
 }

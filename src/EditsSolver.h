@@ -11,6 +11,7 @@ private:
 
 public:
     static DoubleArray solve(const DoubleArray& w, const DoubleArray& g, const FeatureVecArray& fv);
+    static DoubleArray solve(const DoubleArray& w, const DoubleArray& g, const DoubleArray& mu, const FeatureVecArray& fv);
 };
 
 #endif // EDITS_SOLVER_H

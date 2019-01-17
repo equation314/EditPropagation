@@ -8,11 +8,15 @@
 const double EPS = 1e-9;
 const int DIM = 5;
 
+typedef double VectorK[DIM];
+
 struct FeatureVec
 {
     cv::Vec3f f;
     cv::Vec2f x;
 
+    FeatureVec(const VectorK vec)
+        : f(vec[0], vec[1], vec[2]), x(vec[3], vec[4]) {}
     FeatureVec(const cv::Vec3f& color, const cv::Vec2f& pos)
         : f(color / Config::omega_c), x(pos / Config::omega_p) {}
 
@@ -22,8 +26,6 @@ struct FeatureVec
         // return exp(-cv::norm(f - b.f, cv::NORM_L2SQR) / Config::omega_a) * exp(-cv::norm(x - b.x, cv::NORM_L2SQR) / Config::omega_s);
     }
 };
-
-typedef double VectorK[DIM];
 
 struct Point
 {
