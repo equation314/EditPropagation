@@ -21,29 +21,47 @@ EditPropagation::~EditPropagation()
 {
 }
 
-cv::Mat EditPropagation::apply_edits(const DoubleArray& e)
+cv::Mat EditPropagation::applyEdits(const DoubleArray& e)
 {
-    cv::Mat lab_img, output_img;
-    cv::cvtColor(m_orig_img, lab_img, CV_BGR2Lab);
+    cv::Mat tmp_img, output_img;
+    if (Config::apply_edits_color_space == "lab")
+        cv::cvtColor(m_orig_img, tmp_img, CV_BGR2Lab);
+    else if (Config::apply_edits_color_space == "hsv")
+        cv::cvtColor(m_orig_img, tmp_img, CV_BGR2HSV);
+    else
+        assert(false);
 
     double ave = 0;
     for (auto i : e)
         ave += i;
     ave /= e.size();
-    ave = 0.5;
+    cout << ave << endl;
+    // ave = 0.5;
 
     for (int i = 0; i < m_h; i++)
         for (int j = 0; j < m_w; j++)
         {
-            cv::Vec3b& lab = lab_img.at<cv::Vec3b>(i, j);
+            cv::Vec3b& color = tmp_img.at<cv::Vec3b>(i, j);
 
             int delta = (e[i * m_w + j] - ave) * Config::apply_edits_coefficient;
-            int new_light = lab[0] + delta;
+            int new_value = color[Config::apply_edits_color_channel] + delta;
 
-            lab[0] = min(max(new_light, 0), 255);
+            if (Config::apply_edits_color_space == "hsv" && Config::apply_edits_color_channel == 0)
+            {
+                if (new_value > 180)
+                    new_value -= 180;
+                if (new_value < 0)
+                    new_value += 180;
+            }
+            color[Config::apply_edits_color_channel] = min(max(new_value, 0), 255);
         }
 
-    cv::cvtColor(lab_img, output_img, CV_Lab2BGR);
+    if (Config::apply_edits_color_space == "lab")
+        cv::cvtColor(tmp_img, output_img, CV_Lab2BGR);
+    else if (Config::apply_edits_color_space == "hsv")
+        cv::cvtColor(tmp_img, output_img, CV_HSV2BGR);
+    else
+        assert(false);
     return output_img;
 }
 
@@ -116,11 +134,11 @@ cv::Mat EditPropagation::array2image(const DoubleArray& array, int height, int w
     {
         min = *min_element(array.begin(), array.end());
         max = *max_element(array.begin(), array.end());
+        cout << min << ' ' << max << endl;
     }
     else
         min = 0, max = 1;
     double scalar = max - min;
-    cout << min << ' ' << max << endl;
     cv::Mat img(height, width, CV_8UC1);
     for (int i = 0, t = 0; i < height; i++)
         for (int j = 0; j < width; j++)

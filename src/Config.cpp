@@ -8,13 +8,17 @@
 
 int Config::column_samples = 100;
 
-double Config::omega_a = 0.2;
+// double Config::omega_a = 0.2;
 
-double Config::omega_s = 10;
+// double Config::omega_s = 10;
 
 double Config::omega_c = 0.2;
 
 double Config::omega_p = 0.2;
+
+std::string Config::apply_edits_color_space = "lab";
+
+int Config::apply_edits_color_channel = 0;
 
 double Config::apply_edits_coefficient = 50;
 
@@ -29,10 +33,12 @@ double Config::kd_tree_eta = 0.5;
 void Config::load(const Json::Value& config)
 {
     column_samples = config["column_samples"].asInt();
-    omega_a = config["omega_a"].asDouble();
-    omega_s = config["omega_s"].asDouble();
+    // omega_a = config["omega_a"].asDouble();
+    // omega_s = config["omega_s"].asDouble();
     omega_c = config["omega_c"].asDouble();
     omega_p = config["omega_p"].asDouble();
+    apply_edits_color_space = config["apply_edits_color_space"].asString();
+    apply_edits_color_channel = config["apply_edits_color_channel"].asInt();
     apply_edits_coefficient = config["apply_edits_coefficient"].asDouble();
     none_user_input_gray = config["none_user_input_gray"].asInt();
     use_log_lab_color = config["use_log_lab_color"].asBool();
@@ -44,10 +50,12 @@ Json::Value Config::toJson()
 {
     Json::Value config;
     config["column_samples"] = column_samples;
-    config["omega_a"] = omega_a;
-    config["omega_s"] = omega_s;
+    // config["omega_a"] = omega_a;
+    // config["omega_s"] = omega_s;
     config["omega_c"] = omega_c;
     config["omega_p"] = omega_p;
+    config["apply_edits_color_space"] = apply_edits_color_space;
+    config["apply_edits_color_channel"] = apply_edits_color_channel;
     config["apply_edits_coefficient"] = apply_edits_coefficient;
     config["use_log_lab_color"] = use_log_lab_color;
     config["use_brute_force"] = use_brute_force;

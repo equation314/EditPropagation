@@ -159,7 +159,7 @@ void KDTree::build()
             corner->addNeighborCell(neighbor_cell);
         }
 
-        if (true)
+        if (s)
             m_corners.push_back(corner);
         else
             delete corner;
@@ -265,6 +265,8 @@ void KDTree::m_adjustTJunctions(Node* p)
             {
                 ia = m_corner_index(pa);
                 ib = m_corner_index(pb);
+                if (ia == -1 || ib == -1)
+                    continue;
                 assert(ia != -1 && ib != -1);
 
                 int dim = DIM;

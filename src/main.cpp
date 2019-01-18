@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 
     char fname[256];
     cv::Mat img = ep->getEditedImage(output_id);
-    sprintf(fname, "%02d_final.png", output_id);
+    sprintf(fname, "%02d_%s_final.png", output_id, algo[0] == '0' ? "app_prop" : "kd");
     cv::imwrite(fname, img);
     cv::imshow("final", img);
     cv::waitKey(0);

@@ -16,7 +16,7 @@ public:
 
     virtual cv::Mat getEditedImage(int outputId) = 0;
 
-    cv::Mat apply_edits(const DoubleArray& e);
+    cv::Mat applyEdits(const DoubleArray& e);
 
     static cv::Mat array2image(const DoubleArray& array, int height, int width, bool normalize = true);
 

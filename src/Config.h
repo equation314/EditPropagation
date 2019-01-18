@@ -9,8 +9,8 @@ struct Config
     static int column_samples;
 
     // for AppProp
-    static double omega_a;
-    static double omega_s;
+    // static double omega_a;
+    // static double omega_s;
 
     // for AppPropKDTree
     // omega_a = omega_c^2
@@ -18,6 +18,8 @@ struct Config
     static double omega_c;
     static double omega_p;
 
+    static std::string apply_edits_color_space;
+    static int apply_edits_color_channel;
     static double apply_edits_coefficient;
 
     static int none_user_input_gray;

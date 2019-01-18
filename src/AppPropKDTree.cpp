@@ -26,23 +26,23 @@ cv::Mat AppPropKDTree::getEditedImage(int outputId)
     char fname[256];
     DoubleArray arr = tree->getClustersImage();
     cv::Mat img = array2image(arr, m_h, m_w);
-    sprintf(fname, "%02d_clusters.png", outputId);
+    sprintf(fname, "%02d_kd_clusters.png", outputId);
     cv::imwrite(fname, img);
     cv::imshow("clusters", img);
 
     arr = tree->getClustersEditsImage(tree->cornerEdits());
     img = array2image(arr, m_h, m_w);
-    sprintf(fname, "%02d_edit_clusters.png", outputId);
+    sprintf(fname, "%02d_kd_edit_clusters.png", outputId);
     cv::imwrite(fname, img);
     cv::imshow("edit_clusters", img);
 
     arr = tree->getFinalEdits();
-    img = array2image(arr, m_h, m_w, false);
-    sprintf(fname, "%02d_edits.png", outputId);
+    img = array2image(arr, m_h, m_w, true);
+    sprintf(fname, "%02d_kd_edits.png", outputId);
     cv::imwrite(fname, img);
     cv::imshow("edits", img);
 
     delete tree;
 
-    return apply_edits(arr);
+    return applyEdits(arr);
 }
