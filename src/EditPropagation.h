@@ -14,11 +14,11 @@ public:
     EditPropagation(const char* origImage, const char* userInput);
     virtual ~EditPropagation();
 
-    virtual void work() = 0;
+    virtual cv::Mat getEditedImage(int outputId) = 0;
 
     cv::Mat apply_edits(const DoubleArray& e);
 
-    static cv::Mat array2image(const DoubleArray& array, int height, int width);
+    static cv::Mat array2image(const DoubleArray& array, int height, int width, bool normalize = true);
 
 private:
     cv::Mat m_orig_img;

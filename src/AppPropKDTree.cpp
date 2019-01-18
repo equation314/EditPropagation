@@ -10,7 +10,7 @@ AppPropKDTree::~AppPropKDTree()
 {
 }
 
-void AppPropKDTree::work()
+cv::Mat AppPropKDTree::getEditedImage(int outputId)
 {
     KDTree* tree = new KDTree();
     for (int i = 0; i < m_n; i++)
@@ -23,26 +23,26 @@ void AppPropKDTree::work()
     tree->solveCornerEdits(m_user_w, m_user_g);
     tree->interpolation();
 
+    char fname[256];
     DoubleArray arr = tree->getClustersImage();
     cv::Mat img = array2image(arr, m_h, m_w);
-    cv::imwrite("01_clusters.png", img);
+    sprintf(fname, "%02d_clusters.png", outputId);
+    cv::imwrite(fname, img);
     cv::imshow("clusters", img);
 
     arr = tree->getClustersEditsImage(tree->cornerEdits());
     img = array2image(arr, m_h, m_w);
-    cv::imwrite("01_edit_clusters.png", img);
+    sprintf(fname, "%02d_edit_clusters.png", outputId);
+    cv::imwrite(fname, img);
     cv::imshow("edit_clusters", img);
 
     arr = tree->getFinalEdits();
-    img = array2image(arr, m_h, m_w);
-    cv::imwrite("01_edits.png", img);
+    img = array2image(arr, m_h, m_w, false);
+    sprintf(fname, "%02d_edits.png", outputId);
+    cv::imwrite(fname, img);
     cv::imshow("edits", img);
 
-    img = apply_edits(arr);
-    cv::imwrite("01_final.png", img);
-    cv::imshow("final", img);
-
-    cv::waitKey(0);
-
     delete tree;
+
+    return apply_edits(arr);
 }

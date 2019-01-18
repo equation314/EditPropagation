@@ -9,7 +9,7 @@ public:
     AppPropKDTree(const char* origImage, const char* userInput);
     virtual ~AppPropKDTree();
 
-    void work();
+    cv::Mat getEditedImage(int outputId);
 
 private:
 };

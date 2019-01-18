@@ -30,6 +30,7 @@ cv::Mat EditPropagation::apply_edits(const DoubleArray& e)
     for (auto i : e)
         ave += i;
     ave /= e.size();
+    ave = 0.5;
 
     for (int i = 0; i < m_h; i++)
         for (int j = 0; j < m_w; j++)
@@ -108,10 +109,16 @@ void EditPropagation::m_init_user_w_g()
         }
 }
 
-cv::Mat EditPropagation::array2image(const DoubleArray& array, int height, int width)
+cv::Mat EditPropagation::array2image(const DoubleArray& array, int height, int width, bool normalize)
 {
-    double min = *min_element(array.begin(), array.end());
-    double max = *max_element(array.begin(), array.end());
+    double min, max;
+    if (normalize)
+    {
+        min = *min_element(array.begin(), array.end());
+        max = *max_element(array.begin(), array.end());
+    }
+    else
+        min = 0, max = 1;
     double scalar = max - min;
     cout << min << ' ' << max << endl;
     cv::Mat img(height, width, CV_8UC1);

@@ -10,13 +10,15 @@ AppProp::~AppProp()
 {
 }
 
-void AppProp::work()
+cv::Mat AppProp::getEditedImage(int outputId)
 {
     DoubleArray e = EditsSolver::solve(m_user_w, m_user_g, m_fv);
 
-    // cv::Mat img = array2image(e, m_h, m_w);
-    cv::Mat img = apply_edits(e);
-    cv::imwrite("output.png", img);
+    char fname[256];
+    cv::Mat img = array2image(e, m_h, m_w, false);
+    sprintf(fname, "%02d_edits.png", outputId);
+    cv::imwrite(fname, img);
     cv::imshow("edits", img);
-    cv::waitKey(0);
+
+    return apply_edits(e);
 }

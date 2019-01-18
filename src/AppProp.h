@@ -9,7 +9,7 @@ public:
     AppProp(const char* origImage, const char* userInput);
     virtual ~AppProp();
 
-    void work();
+    cv::Mat getEditedImage(int outputId);
 
 private:
 };
