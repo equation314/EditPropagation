@@ -1,0 +1,12 @@
+{
+  "column_samples": 100,
+  "omega_c": 0.3,
+  "omega_p": 0.3,
+  "apply_edits_color_space": "lab",
+  "apply_edits_color_channel": 0,
+  "apply_edits_coefficient": 200,
+  "none_user_input_gray": 128,
+  "use_log_lab_color": false,
+  "use_brute_force": false,
+  "kd_tree_eta": 0.5
+}
