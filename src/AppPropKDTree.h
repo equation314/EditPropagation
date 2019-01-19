@@ -6,10 +6,10 @@
 class AppPropKDTree : public EditPropagation
 {
 public:
-    AppPropKDTree(const char* origImage, const char* userInput);
+    AppPropKDTree(const char* origImage, const char* userInput, bool isVideo = false);
     virtual ~AppPropKDTree();
 
-    cv::Mat getEditedImage(int outputId);
+    FrameArray getEditedImage(int outputId);
 
 private:
 };

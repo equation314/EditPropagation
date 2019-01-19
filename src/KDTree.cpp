@@ -66,6 +66,9 @@ KDTree::~KDTree()
 void KDTree::m_build(Node* p, int k)
 {
     p->k = k;
+    for (int i = 0; i < DIM; i++)
+        p->len_prod *= p->len(i);
+
     Point center = p->center();
     if (p->l >= p->r || sqrt(p->size2()) - sqrt(m_nn_tree->nearestDist2(&center)) < Config::kd_tree_eta)
     {
@@ -119,6 +122,8 @@ void KDTree::m_destory(Node* p)
 
 void KDTree::build()
 {
+    cout << "Building k-d tree ..." << endl;
+
     m_n = m_points.size();
     m_root = new Node(0, m_n);
     m_cells.clear();
@@ -128,6 +133,8 @@ void KDTree::build()
         double mi = 1e9, ma = -1e9;
         for (auto p : m_points)
             mi = min(mi, p->x[i]), ma = max(ma, p->x[i]);
+        if (mi == ma)
+            mi -= 0.5, ma += 0.5;
         m_root->lower[i] = mi, m_root->upper[i] = ma;
     }
     cout << m_n << endl;
@@ -213,12 +220,12 @@ void KDTree::solveCornerEdits(const DoubleArray& userW, const DoubleArray& userG
             int corner_index = i->corner_index;
             for (int j = cell->l; j < cell->r; j++)
             {
-                double s = 1;
+                double s = 1 / cell->len_prod;
                 for (int k = 0; k < DIM; k++)
                     if ((corner_index >> k) & 1)
-                        s *= (m_points[j]->x[k] - cell->lower[k]) / cell->len(k);
+                        s *= (m_points[j]->x[k] - cell->lower[k]);
                     else
-                        s *= (cell->upper[k] - m_points[j]->x[k]) / cell->len(k);
+                        s *= (cell->upper[k] - m_points[j]->x[k]);
 
                 int index = m_points[j]->index();
                 w_up += s * userW[index];
@@ -283,7 +290,11 @@ void KDTree::m_adjustTJunctions(Node* p)
 
 void KDTree::interpolation()
 {
+    cout << "Adjust T-junctions ..." << endl;
+
     m_adjustTJunctions(m_root);
+
+    cout << "Interpolation ..." << endl;
 
     m_final_edits = DoubleArray(m_n);
     for (int t = 0; t < m_corners.size(); t++)
@@ -296,12 +307,12 @@ void KDTree::interpolation()
             int corner_index = i->corner_index;
             for (int j = cell->l; j < cell->r; j++)
             {
-                double s = 1;
+                double s = 1 / cell->len_prod;
                 for (int k = 0; k < DIM; k++)
                     if ((corner_index >> k) & 1)
-                        s *= (m_points[j]->x[k] - cell->lower[k]) / cell->len(k);
+                        s *= (m_points[j]->x[k] - cell->lower[k]);
                     else
-                        s *= (cell->upper[k] - m_points[j]->x[k]) / cell->len(k);
+                        s *= (cell->upper[k] - m_points[j]->x[k]);
                 m_final_edits[m_points[j]->index()] += s * e;
             }
         }

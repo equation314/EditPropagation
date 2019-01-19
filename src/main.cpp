@@ -32,10 +32,10 @@ int main(int argc, char* argv[])
     switch (algo[0])
     {
     case '0':
-        ep = new AppProp(origin, input);
+        ep = new AppProp(origin, input, true);
         break;
     case '1':
-        ep = new AppPropKDTree(origin, input);
+        ep = new AppPropKDTree(origin, input, true);
         break;
     default:
         usage(argv[0]);
@@ -43,10 +43,9 @@ int main(int argc, char* argv[])
     }
 
     char fname[256];
-    cv::Mat img = ep->getEditedImage(output_id);
-    sprintf(fname, "%02d_%s_final.png", output_id, algo[0] == '0' ? "app_prop" : "kd");
-    cv::imwrite(fname, img);
-    cv::imshow("final", img);
+    std::vector<cv::Mat> frames = ep->getEditedImage(output_id);
+    sprintf(fname, "%02d_%s_final", output_id, algo[0] == '0' ? "app_prop" : "kd");
+    EditPropagation::saveFrameArray(fname, frames);
     cv::waitKey(0);
 
     delete ep;

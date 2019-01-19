@@ -1,12 +1,13 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <cmath>
 #include <opencv/cv.hpp>
 
 #include "Config.h"
 
 const double EPS = 1e-9;
-const int DIM = 5;
+const int DIM = 6;
 
 typedef double VectorK[DIM];
 
@@ -14,15 +15,16 @@ struct FeatureVec
 {
     cv::Vec3f f;
     cv::Vec2f x;
+    double t;
 
     FeatureVec(const VectorK vec)
-        : f(vec[0], vec[1], vec[2]), x(vec[3], vec[4]) {}
-    FeatureVec(const cv::Vec3f& color, const cv::Vec2f& pos)
-        : f(color / Config::omega_c), x(pos / Config::omega_p) {}
+        : f(vec[0], vec[1], vec[2]), x(vec[3], vec[4]), t(vec[5]) {}
+    FeatureVec(const cv::Vec3f& color, const cv::Vec2f& pos, double t)
+        : f(color / Config::omega_c), x(pos / Config::omega_p), t(t / Config::omega_t) {}
 
     double affinity_with(const FeatureVec& b) const
     {
-        return exp(-cv::norm(f - b.f, cv::NORM_L2SQR)) * exp(-cv::norm(x - b.x, cv::NORM_L2SQR));
+        return exp(-cv::norm(f - b.f, cv::NORM_L2SQR)) * exp(-cv::norm(x - b.x, cv::NORM_L2SQR)) * exp(-(t - b.t) * (t - b.t));
         // return exp(-cv::norm(f - b.f, cv::NORM_L2SQR) / Config::omega_a) * exp(-cv::norm(x - b.x, cv::NORM_L2SQR) / Config::omega_s);
     }
 };
@@ -75,6 +77,7 @@ private:
     bool m_is_user_edits;
 };
 
+typedef std::vector<cv::Mat> FrameArray;
 typedef std::vector<double> DoubleArray;
 typedef std::vector<FeatureVec> FeatureVecArray;
 

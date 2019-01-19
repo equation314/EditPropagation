@@ -6,10 +6,10 @@
 class AppProp : public EditPropagation
 {
 public:
-    AppProp(const char* origImage, const char* userInput);
+    AppProp(const char* origImage, const char* userInput, bool isVideo = false);
     virtual ~AppProp();
 
-    cv::Mat getEditedImage(int outputId);
+    FrameArray getEditedImage(int outputId);
 
 private:
 };

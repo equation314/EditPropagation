@@ -16,6 +16,8 @@ double Config::omega_c = 0.2;
 
 double Config::omega_p = 0.2;
 
+double Config::omega_t = 1.0;
+
 std::string Config::apply_edits_color_space = "lab";
 
 int Config::apply_edits_color_channel = 0;
@@ -37,6 +39,7 @@ void Config::load(const Json::Value& config)
     // omega_s = config["omega_s"].asDouble();
     omega_c = config["omega_c"].asDouble();
     omega_p = config["omega_p"].asDouble();
+    omega_t = config["omega_t"].asDouble();
     apply_edits_color_space = config["apply_edits_color_space"].asString();
     apply_edits_color_channel = config["apply_edits_color_channel"].asInt();
     apply_edits_coefficient = config["apply_edits_coefficient"].asDouble();
@@ -54,6 +57,7 @@ Json::Value Config::toJson()
     // config["omega_s"] = omega_s;
     config["omega_c"] = omega_c;
     config["omega_p"] = omega_p;
+    config["omega_t"] = omega_t;
     config["apply_edits_color_space"] = apply_edits_color_space;
     config["apply_edits_color_channel"] = apply_edits_color_channel;
     config["apply_edits_coefficient"] = apply_edits_coefficient;

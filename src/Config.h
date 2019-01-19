@@ -17,6 +17,7 @@ struct Config
     // omega_p = omega_s^2
     static double omega_c;
     static double omega_p;
+    static double omega_t;
 
     static std::string apply_edits_color_space;
     static int apply_edits_color_channel;

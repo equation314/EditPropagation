@@ -11,7 +11,7 @@ class NearestNeighbor;
 struct Node
 {
     Node(int l, int r)
-        : l(l), r(r), k(0), lc(nullptr), rc(nullptr)
+        : l(l), r(r), k(0), len_prod(1), lc(nullptr), rc(nullptr)
     {
     }
 
@@ -24,6 +24,7 @@ struct Node
     Point cornerPoint(int index) const;
 
     int l, r, k;
+    double len_prod;
     Node *lc, *rc;
     VectorK lower, upper;
 };
